@@ -8,5 +8,7 @@ I've seen people use this smoother a lot and was curious how it worked and progr
 A more detailed explanation on: https://www.itl.nist.gov/div898/handbook/pmd/section1/pmd144.htm
 
 Here is an example from NIST using a rolling local window of 7 observations.
-
 ![Example of LOWESS from NIST](https://github.com/frogger21/LOWESS-in-R/blob/master/lowess2.png)
+
+Using more iterations and a higher order polynomial it looks a bit smoother.
+![Example of LOWESS from NIST more smooth](https://github.com/frogger21/LOWESS-in-R/blob/master/lowess3.png)
