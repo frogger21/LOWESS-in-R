@@ -137,24 +137,6 @@ legend("topleft",bty="n",c(legend2,legend2),lty=c(1,2),col=c("firebrick","firebr
 legend("topleft",bty="n",c(legend1,legend2),lty=1,col=c("orange","firebrick"),lwd=3)
 }
 
-if(1==3){
-d_data2 = d_data
-d_data2[22,] = c(10,0)
-d_data2=d_data2[order(d_data2[,1]),]
-points = 13
-distanceFromX = distancex(d_data2,points)
-temp1 = F_rows(distanceFromX,points,7)
-localSet = d_data2[temp1[,1],]
-X = matrix(0,7,2)
-X[,1]=1
-X[,2] = localSet[,1]
-scaledDistance = F_scaledDistance(distanceFromX,temp1[1,1],7)
-weights = tricube_w(scaledDistance)
-wls_betas = F_WLS(localSet,weights,points,7)
-predicted=X%*%wls_betas
-rowN = which(temp1[,1]==points)
-predicted[rowN]
-}
 
 if(select==3){
 zz3 = matrix(cars$speed,50,2)
