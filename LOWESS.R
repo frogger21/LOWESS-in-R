@@ -133,7 +133,7 @@ lines(d_data[,1],lowess2[,2],col="firebrick",lty=1,lwd=3)
 lines(lowess3[,1],lowess3[,2],col="firebrick",lty=2,lwd=3)
 legend1 = paste("window =",window,"months, iteration =",it)
 legend2 = paste("window =",window2,"months, iteration =",it2)
-legend("topleft",bty="n",c(legend2,legend2),lty=c(1,2),col=c("firebrick","firebrick"),lwd=3)
+#legend("topleft",bty="n",c(legend2,legend2),lty=c(1,2),col=c("firebrick","firebrick"),lwd=3)
 legend("topleft",bty="n",c(legend1,legend2),lty=1,col=c("orange","firebrick"),lwd=3)
 }
 
