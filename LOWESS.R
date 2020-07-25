@@ -22,11 +22,15 @@ n_closest <- function(window,poly,pt,mt){
 	W = diag(temp[,1])
 	X = matrix(1,window,1)
 	for(j in 1:poly){
-		X = cbind(X,temp[,2]^poly)
+		X = cbind(X,(temp[,2]^j))
 	}
+	#print(X)
 	Y = matrix(temp[,3],window,1)
 	B = solve(t(X)%*%W%*%X)%*%t(X)%*%W%*%Y
-	Predicted = B[1,1] + B[2,1]*pt
+	Predicted = 0
+	for(j in 1:nrow(B)){
+		Predicted = Predicted + B[j,1]*(pt^(j-1))
+	}
 	return(Predicted)
 }
 
@@ -152,8 +156,8 @@ zz[,1] = seq((1749+(1/12)),2013.75,by=(1/12))
 
 #NIST DATA
 if(select==1){
-window = 7
-poly = 1
+window = 14
+poly = 2
 it =1
 lowess1 = F_lowess(d_data,window,it,poly,FALSE)
 lowess2 = F_lowess(d_data,window,it,poly,TRUE)
@@ -189,7 +193,7 @@ legend("topleft",bty="n",c(legend1,legend2),lty=1,col=c("orange","firebrick"),lw
 if(select==3){
 zz3 = matrix(cars$speed,50,2)
 zz3[,2] = cars$dist
-poly = 1
+poly = 2
 cars1 = F_lowess(zz3,20,1,poly,TRUE)
 cars2 = F_lowess(zz3,20,2,poly,FALSE)
 plot(cars$speed, cars$dist, main="cars with window = 20",pch=19)
