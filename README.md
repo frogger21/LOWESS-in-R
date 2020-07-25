@@ -21,6 +21,7 @@ Here’s an example emphasizing why the output of the smoother near the ends can
 
 
 7/24/2020 update
+
 I added a density parameter to estimate the LOWESS value of unobserved variables. For instance on the example given by NIST https://www.itl.nist.gov/div898/handbook/pmd/section1/dep/dep144.htm they show that the unobserved x=10 has the LOWESS value of f(x)=202.9876. It is calculated in the same straightforward way as the observed variables. We look for the n-window closest points to the point x=10 and then run through the distance, scaled distance, tricube weights and then use the WLS regression to find the LOWESS value of x=10. 
 
 Here's an example of a comparison of the LOWESS with the density parameter turned on (the red line) and off.
