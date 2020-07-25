@@ -6,6 +6,30 @@
 #~~~~~~~~~~~~~~~#
 #~~ functions ~~#
 #~~~~~~~~~~~~~~~#
+
+n_closest <- function(window,poly,pt,mt){
+	n = nrow(mt)
+	temp = matrix(seq(1:n),n,3) #1st col distance, 2nd col reference
+	temp[,2] = mt[,1] #the x values
+	temp[,3] = mt[,2] #the y values
+	for(i in 1:n){
+		temp[i,1] = abs(pt-mt[i,1]) #absolute value of points
+	}
+	temp = temp[order(temp[,1]),]
+	temp = temp[1:window,]
+	temp[,1] = temp[,1]/temp[window,1] #the max
+	temp[,1] = tricube_w(temp[,1])
+	W = diag(temp[,1])
+	X = matrix(1,window,1)
+	for(j in 1:poly){
+		X = cbind(X,temp[,2]^poly)
+	}
+	Y = matrix(temp[,3],window,1)
+	B = solve(t(X)%*%W%*%X)%*%t(X)%*%W%*%Y
+	Predicted = B[1,1] + B[2,1]*pt
+	return(Predicted)
+}
+
 tricube_w <- function(tempVector){
 	n = length(tempVector)
 	temp = seq(1:n)
@@ -66,10 +90,10 @@ F_WLS <- function(matrixT,regressors, w, s, window)
 F_lowess <- function(d_data,window,iter=1,poly=1,density=FALSE){
 	#d_data = matrix with x on 1st col, y on 2nd col
 	#window = local area size
-	#density=FALSE by default, make lowess denser & smoother with more X values
+	#density=FALSE by default, make lowess denser  with more X values
 	#d_data should be sorted by x
-	if(density==FALSE){}
 	lowess = d_data
+	if(density==FALSE){
 	for(jj in 1:iter){
 		if(jj > 1){d_data = lowess}		
 		n = nrow(d_data)
@@ -92,7 +116,29 @@ F_lowess <- function(d_data,window,iter=1,poly=1,density=FALSE){
 			lowess[ii,2] = predicted[rowN]
 		}
 	}
-	return(lowess)
+		return(lowess)
+	}else{
+		
+		#7/24/2020 update
+		#this makes it denser, none of this is optimized for speed
+		nlength = nrow(d_data)
+		dense = 4
+		min_pt = min(d_data[,1])
+		max_pt = max(d_data[,1])		
+		denser = seq(min_pt,max_pt,(max_pt-min_pt)/(nlength*dense))
+		denser = denser[2:(length(denser)-1)]
+		lowess = matrix(-99999,length(denser),2)		
+		lowess[,1] = denser		
+		lowess = rbind(as.matrix(d_data),lowess)
+		lowess = lowess[order(lowess[,1]),] #orders it by x values
+		nn = nrow(lowess)
+		#print(lowess)
+		for(ii in 1:nn){
+			lowess[ii,2] = n_closest(window,poly,lowess[ii,1],d_data)
+			#print(paste("IN HERE",ii))	
+		}
+		return(lowess)
+	}
 }
 
 #~~~~~~~~~~~~~~~~~#
@@ -100,19 +146,21 @@ F_lowess <- function(d_data,window,iter=1,poly=1,density=FALSE){
 #~~~~~~~~~~~~~~~~~#
 
 d_data = read.csv("E:/D/data/lowess.csv") #change file here for NIST data csv
-select = 2 #1 NIST data, 2 for Sunspots, 3 for cars
+select = 1 #1 NIST data, 2 for Sunspots, 3 for cars
 zz = matrix(sunspot.month,length(sunspot.month),2)
 zz[,1] = seq((1749+(1/12)),2013.75,by=(1/12))
 
 #NIST DATA
 if(select==1){
 window = 7
-poly = 2
-it = 4
-lowess = F_lowess(d_data,window,it,poly,FALSE)
+poly = 1
+it =1
+lowess1 = F_lowess(d_data,window,it,poly,FALSE)
+lowess2 = F_lowess(d_data,window,it,poly,TRUE)
 title1 = paste("Example of LOWESS Smoother from nist.gov, iteration = ",it,", polynomial order =",poly)
 plot(d_data[,1],d_data[,2],pch=19,main=title1, xlab="x",ylab="y")
-lines(d_data[,1],lowess[,2],col="orange",lty=1,lwd=3)
+lines(lowess1[,1],lowess1[,2],col="orange",lty=1,lwd=2)
+lines(lowess2[,1],lowess2[,2],col="firebrick",lty=1,lwd=2)
 }
 
 #Sunspots monthly
@@ -142,7 +190,7 @@ if(select==3){
 zz3 = matrix(cars$speed,50,2)
 zz3[,2] = cars$dist
 poly = 1
-cars1 = F_lowess(zz3,20,1,poly,FALSE)
+cars1 = F_lowess(zz3,20,1,poly,TRUE)
 cars2 = F_lowess(zz3,20,2,poly,FALSE)
 plot(cars$speed, cars$dist, main="cars with window = 20",pch=19)
 lines(cars1[,1],cars1[,2],col="blue",lwd=2)
